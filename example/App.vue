@@ -1,6 +1,5 @@
 <script lang="ts">
 import { defineComponent } from 'vue-demi';
-// Import images from the assets folder
 import image1 from './assets/image1.jpg';
 import image2 from './assets/image2.jpg';
 import image3 from './assets/image3.jpg';
@@ -8,230 +7,155 @@ import image3 from './assets/image3.jpg';
 export default defineComponent({
   data() {
     return {
-       blocks: [
-        {
-          id: 1,
-          type: 'text',
-          editableText: 'I am editable text. Drag this box around and edit me!',
-        },
-        {
-          id: 2,
-          type: 'image',
-          selectedImage: image1,
-        },
+      blocks: [
+        { id: 1, type: 'text', editableText: 'I am editable text. Drag this box around and edit me!', width: 350, height: 250 },
+        { id: 2, type: 'image', selectedImage: image1, width: 350, height: 380 },
       ],
       predefinedImages: [
         { label: 'Image 1', value: image1 },
         { label: 'Image 2', value: image2 },
         { label: 'Image 3', value: image3 },
       ],
+      resizingBlock: null,
+      resizeStartX: 0,
+      resizeStartY: 0,
     };
   },
   methods: {
-    onStart(e) {
-      this.currentEvent = e;
-    },
-    onStop() {
-      this.currentEvent = {};
-    },
-    onMove(e) {
-      this.currentEvent = e;
-    },
-    onTextInput(event) {
-      this.editableText = event.target.value; // Update the text as the user types
-    },
-   onImageChange(event, blockId) {
+    onImageChange(event, blockId) {
       const block = this.blocks.find((b) => b.id === blockId);
       if (block) block.selectedImage = event.target.value;
     },
     duplicateBlock(block) {
       const newBlock = { ...block, id: this.blocks.length + 1 };
-      // Ensure a unique ID for each duplicated block
-      if (block.type === 'text') {
-        newBlock.editableText = `${block.editableText} (Copy)`;
-      } else if (block.type === 'image') {
-        newBlock.selectedImage = block.selectedImage;
-      }
       this.blocks.push(newBlock);
     },
     deleteBlock(blockId) {
       this.blocks = this.blocks.filter((block) => block.id !== blockId);
     },
-  saveData() {
-      // Collect data for export
-      const data = this.blocks.map((block) => {
-        if (block.type === 'text') {
-          return {
-            id: block.id,
-            type: block.type,
-            content: block.editableText,
-          };
-        } else if (block.type === 'image') {
-          return {
-            id: block.id,
-            type: block.type,
-            selectedImage: block.selectedImage,
-          };
-        }
-      });
-
-      // Log the JSON data
+    saveData() {
+      const data = this.blocks.map((block) => ({
+        id: block.id,
+        type: block.type,
+        content: block.type === 'text' ? block.editableText : block.selectedImage,
+        width: block.width,
+        height: block.height,
+      }));
       console.log('Landing Page Data:', JSON.stringify(data, null, 2));
+    },
+    startResize(event, block) {
+      this.resizingBlock = block;
+      this.resizeStartX = event.clientX;
+      this.resizeStartY = event.clientY;
+      document.addEventListener('mousemove', this.resizeBlock);
+      document.addEventListener('mouseup', this.stopResize);
+    },
+    resizeBlock(event) {
+      if (!this.resizingBlock) return;
+      const dx = event.clientX - this.resizeStartX;
+      const dy = event.clientY - this.resizeStartY;
+      this.resizingBlock.width = Math.max(300, this.resizingBlock.width + dx);
+      this.resizingBlock.height = Math.max(250, this.resizingBlock.height + dy);
+      this.resizeStartX = event.clientX;
+      this.resizeStartY = event.clientY;
+    },
+    stopResize() {
+      this.resizingBlock = null;
+      document.removeEventListener('mousemove', this.resizeBlock);
+      document.removeEventListener('mouseup', this.stopResize);
     },
   },
 });
 </script>
 
 <template>
-  <div id="demo">
-   <!-- Save Button -->
-    <button @click="saveData" style="margin-bottom: 20px; padding: 10px 20px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+  <div id="app" class="flex flex-col items-center min-h-screen bg-gray-100 p-6 space-y-6">
+    <!-- Save Button -->
+    <button
+      @click="saveData"
+      class="px-6 py-3 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition"
+    >
       Save
     </button>
 
-    <!-- Iterate over blocks to display them -->
+    <!-- Blocks -->
     <div
       v-for="block in blocks"
       :key="block.id"
       v-draggable="{ handle: 'strong' }"
-      class="draggable-box"
-      style="margin-bottom: 10px"
+      class="relative bg-white shadow-md rounded-lg border border-gray-400 p-4 flex flex-col"
+      :style="{ width: block.width + 'px', minHeight: block.height + 'px' }"
     >
-    <!-- Text Block -->
-<div
-  v-if="block.type === 'text'"
-  style="padding: 10px; display: flex; flex-direction: column; min-height: 180px;"
->
-  <strong class="cursor">Drag here</strong>
-  <div style="overflow: scroll; margin-top: 10px; flex-grow: 1;">
-    <textarea
-      v-model="block.editableText"
-      class="editable-textbox"
-      rows="5"
-      style="width: 100%; resize: none; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
-    ></textarea>
-  </div>
-  <!-- Duplicate and Delete Buttons -->
-  <div style="margin-top: 10px;">
-    <button @click="duplicateBlock(block)" style="width: 100%; margin-bottom: 5px;">Duplicate</button>
-    <button @click="deleteBlock(block.id)" style="width: 100%;">Delete</button>
-  </div>
-</div>
+      <strong class="cursor-move block text-lg font-semibold">Drag here</strong>
+
+      <!-- Text Block -->
+      <div v-if="block.type === 'text'" class="flex flex-col w-full h-full">
+        <textarea v-model="block.editableText"
+          class="editable-textbox w-full h-full p-2 border rounded-md resize-none"></textarea>
+      </div>
 
       <!-- Image Block -->
-      <div
-        v-if="block.type === 'image'"
-        style="display: flex; flex-direction: column; padding: 10px; overflow: visible; min-height: 300px;"
-      >
-        <strong class="cursor">Drag here</strong>
-        <div style="margin-top: 10px;">
-          <label for="imageSelector" style="display: block; font-weight: bold;">Select Image:</label>
-          <select
-            id="imageSelector"
-            v-model="block.selectedImage"
-            @change="event => onImageChange(event, block.id)"
-            class="image-selector"
-            style="width: 100%; padding: 8px; margin-bottom: 10px;"
-          >
-            <option v-for="image in predefinedImages" :key="image.value" :value="image.value">
-              {{ image.label }}
-            </option>
-          </select>
-          <div class="image-container" style="text-align: center;">
-            <img :src="block.selectedImage" alt="Selected Image" style="max-width: 100%; border-radius: 8px;" />
-          </div>
+      <div v-if="block.type === 'image'" class="flex flex-col w-full h-full">
+        <label class="font-semibold mt-2">Select Image:</label>
+        <select v-model="block.selectedImage" @change="event => onImageChange(event, block.id)"
+          class="w-full p-2 border rounded-md">
+          <option v-for="image in predefinedImages" :key="image.value" :value="image.value">
+            {{ image.label }}
+          </option>
+        </select>
+        <div class="image-container mt-2 flex-grow">
+          <img :src="block.selectedImage" alt="Selected Image" class="rounded-md w-full h-auto object-cover" />
         </div>
-        <!-- Duplicate and Delete Buttons -->
-        <div style="margin-top: 10px;">
-          <button @click="duplicateBlock(block)" style="width: 100%; margin-bottom: 5px;">Duplicate</button>
-          <button @click="deleteBlock(block.id)" style="width: 100%;">Delete</button>
-       </div>
+      </div>
+
+      <!-- Buttons (Now placed BELOW the image, inside the block) -->
+      <div class="mt-2 flex justify-between">
+        <button @click="duplicateBlock(block)" class="btn-green w-[48%]">Duplicate</button>
+        <button @click="deleteBlock(block.id)" class="btn-red w-[48%]">Delete</button>
+      </div>
+
+      <!-- Resizer -->
+      <div class="absolute bottom-1 right-1 w-5 h-5 bg-gray-500 cursor-se-resize" @mousedown="startResize($event, block)">
       </div>
     </div>
   </div>
 </template>
 
 <style>
-/* General Styles */
-#demo {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f0f0f0;
-  gap: 20px; /* Add spacing between components */
+/* Tailwind Utility Classes */
+#app {
+  @apply flex flex-col items-center min-h-screen bg-gray-100 gap-6 p-6;
 }
 
-/* Draggable Box Styles */
+/* Draggable Box */
 .draggable-box {
-  border: 2px solid #6b7280;
-  border-radius: 8px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 350px; /* Increased width */
-  min-height: 300px; /* Increased height */
-  overflow: hidden; /* Prevent content from overflowing */
-}
-
-.cursor {
-  cursor: grab;
-  font-weight: bold;
+  @apply border border-gray-400 bg-white rounded-lg shadow-lg p-4 relative flex flex-col;
 }
 
 /* Editable Text Box */
 .editable-textbox {
-  font-size: 16px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  background-color: #f9f9f9;
-  color: #333;
+  @apply text-gray-700 bg-gray-50 border border-gray-300 rounded-md;
 }
 .editable-textbox:focus {
-  border-color: #4a90e2;
-  background-color: #fff;
+  @apply border-blue-500 bg-white;
 }
 
-/* Image Selector */
-.image-selector {
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  background-color: #f9f9f9;
-  color: #333;
+/* Buttons */
+.btn-green {
+  @apply px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition;
+}
+.btn-red {
+  @apply px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition;
 }
 
-.image-selector:focus {
-  border-color: #4a90e2;
-  background-color: #fff;
+/* Resizable Handle */
+.cursor-se-resize {
+  cursor: se-resize;
+  @apply bg-gray-400;
 }
 
 /* Image Container */
 .image-container img {
-  max-width: 100%; /* Ensure image fits within the width */
-  max-height: 200px; /* Limit height */
-  border-radius: 4px;
-  display: block; /* Prevent inline spacing issues */
-  margin: 0 auto; /* Center the image */
-}
-
-/* Buttons */
-button {
-  margin-top: 5px;
-  padding: 8px 16px;
-  border: none;
-  background-color: #4CAF50;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  text-align: center;
-  display: block;
-  border-radius: 4px; /* Rounded corners */
-}
-button:hover {
-  background-color: #45a049;
+  @apply w-full h-auto rounded-md border object-contain;
 }
 </style>
