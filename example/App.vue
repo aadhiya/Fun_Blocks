@@ -71,23 +71,26 @@ export default defineComponent({
       class="draggable-box"
       style="margin-bottom: 10px"
     >
-      <!-- Text Block -->
-      <div
-        v-if="block.type === 'text'"
-        style="padding: 10px; display: flex; flex-direction: column; max-height: 140px;"
-      >
-        <strong class="cursor">Drag here</strong>
-        <div style="overflow: scroll; margin-top: 10px;">
-          <textarea
-            v-model="block.editableText"
-            class="editable-textbox"
-            rows="5"
-            style="width: 100%; resize: none; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
-          ></textarea>
-        </div>
-        <button @click="duplicateBlock(block)">Duplicate</button>
-        <button @click="deleteBlock(block.id)">Delete</button>
-      </div>
+    <!-- Text Block -->
+<div
+  v-if="block.type === 'text'"
+  style="padding: 10px; display: flex; flex-direction: column; min-height: 180px;"
+>
+  <strong class="cursor">Drag here</strong>
+  <div style="overflow: scroll; margin-top: 10px; flex-grow: 1;">
+    <textarea
+      v-model="block.editableText"
+      class="editable-textbox"
+      rows="5"
+      style="width: 100%; resize: none; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+    ></textarea>
+  </div>
+  <!-- Duplicate and Delete Buttons -->
+  <div style="margin-top: 10px;">
+    <button @click="duplicateBlock(block)" style="width: 100%; margin-bottom: 5px;">Duplicate</button>
+    <button @click="deleteBlock(block.id)" style="width: 100%;">Delete</button>
+  </div>
+</div>
 
       <!-- Image Block -->
       <div
@@ -159,8 +162,6 @@ export default defineComponent({
   outline: none;
   background-color: #f9f9f9;
   color: #333;
-  width: 100%;
-  resize: none;
 }
 .editable-textbox:focus {
   border-color: #4a90e2;
@@ -207,5 +208,4 @@ button {
 button:hover {
   background-color: #45a049;
 }
-
 </style>
