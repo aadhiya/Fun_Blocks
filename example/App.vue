@@ -82,7 +82,7 @@ export default defineComponent({
             v-model="block.editableText"
             class="editable-textbox"
             rows="5"
-            style="width: 100%; resize: none;"
+            style="width: 100%; resize: none; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
           ></textarea>
         </div>
         <button @click="duplicateBlock(block)">Duplicate</button>
@@ -92,7 +92,7 @@ export default defineComponent({
       <!-- Image Block -->
       <div
         v-if="block.type === 'image'"
-        style="display: flex; flex-direction: column; max-height: 200px; padding: 10px;"
+        style="display: flex; flex-direction: column; padding: 10px; overflow: visible; min-height: 300px;"
       >
         <strong class="cursor">Drag here</strong>
         <div style="margin-top: 10px;">
@@ -112,8 +112,11 @@ export default defineComponent({
             <img :src="block.selectedImage" alt="Selected Image" style="max-width: 100%; border-radius: 8px;" />
           </div>
         </div>
-        <button @click="duplicateBlock(block)">Duplicate</button>
-        <button @click="deleteBlock(block.id)">Delete</button>
+        <!-- Duplicate and Delete Buttons -->
+        <div style="margin-top: 10px;">
+          <button @click="duplicateBlock(block)" style="width: 100%; margin-bottom: 5px;">Duplicate</button>
+          <button @click="deleteBlock(block.id)" style="width: 100%;">Delete</button>
+        </div>
       </div>
     </div>
   </div>
@@ -156,6 +159,8 @@ export default defineComponent({
   outline: none;
   background-color: #f9f9f9;
   color: #333;
+  width: 100%;
+  resize: none;
 }
 .editable-textbox:focus {
   border-color: #4a90e2;
@@ -185,18 +190,22 @@ export default defineComponent({
   display: block; /* Prevent inline spacing issues */
   margin: 0 auto; /* Center the image */
 }
-  
+
 /* Buttons */
 button {
-  margin-top: 10px;
+  margin-top: 5px;
   padding: 8px 16px;
   border: none;
   background-color: #4CAF50;
   color: white;
   font-size: 14px;
   cursor: pointer;
+  text-align: center;
+  display: block;
+  border-radius: 4px; /* Rounded corners */
 }
 button:hover {
   background-color: #45a049;
 }
+
 </style>
