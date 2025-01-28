@@ -57,12 +57,38 @@ export default defineComponent({
     deleteBlock(blockId) {
       this.blocks = this.blocks.filter((block) => block.id !== blockId);
     },
+  saveData() {
+      // Collect data for export
+      const data = this.blocks.map((block) => {
+        if (block.type === 'text') {
+          return {
+            id: block.id,
+            type: block.type,
+            content: block.editableText,
+          };
+        } else if (block.type === 'image') {
+          return {
+            id: block.id,
+            type: block.type,
+            selectedImage: block.selectedImage,
+          };
+        }
+      });
+
+      // Log the JSON data
+      console.log('Landing Page Data:', JSON.stringify(data, null, 2));
+    },
   },
 });
 </script>
 
 <template>
   <div id="demo">
+   <!-- Save Button -->
+    <button @click="saveData" style="margin-bottom: 20px; padding: 10px 20px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+      Save
+    </button>
+
     <!-- Iterate over blocks to display them -->
     <div
       v-for="block in blocks"
@@ -119,7 +145,7 @@ export default defineComponent({
         <div style="margin-top: 10px;">
           <button @click="duplicateBlock(block)" style="width: 100%; margin-bottom: 5px;">Duplicate</button>
           <button @click="deleteBlock(block.id)" style="width: 100%;">Delete</button>
-        </div>
+       </div>
       </div>
     </div>
   </div>
