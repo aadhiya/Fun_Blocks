@@ -19,6 +19,15 @@ export default defineComponent({
       resizingBlock: null,
       resizeStartX: 0,
       resizeStartY: 0,
+      heroText: "Welcome to Your Landing Page!", // Editable Hero Text
+      heroCTA: "Get Started", // Editable CTA Button Text
+      logoUrl: '', // User uploaded logo
+      navItems: [
+        { name: 'Home', link: '#' },
+        { name: 'About', link: '#' },
+        { name: 'Services', link: '#', submenu: ['Web Design', 'SEO', 'Marketing'] },
+        { name: 'Contact', link: '#' }
+      ],
     };
   },
   methods: {
@@ -42,6 +51,18 @@ export default defineComponent({
         height: block.height,
       }));
       console.log('Landing Page Data:', JSON.stringify(data, null, 2));
+    },
+    previewPage() {
+      console.log("Previewing Landing Page...");
+    },
+    publishPage() {
+      console.log("Landing Page Published!");
+    },
+    onLogoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.logoUrl = URL.createObjectURL(file);
+      }
     },
     startResize(event, block) {
       this.resizingBlock = block;
@@ -69,14 +90,46 @@ export default defineComponent({
 </script>
 
 <template>
-  <div id="app" class="flex flex-col items-center min-h-screen bg-gray-100 p-6 space-y-6">
-    <!-- Save Button -->
-    <button
-      @click="saveData"
-      class="px-6 py-3 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition"
-    >
-      Save
-    </button>
+  <div id="app">
+    <!-- ✅ HEADER SECTION (Sticky with Gradient) -->
+    <header class="fixed top-0 left-0 w-full bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg text-white py-4 px-6 z-50 flex justify-between items-center">
+      <!-- Logo Upload -->
+      <div class="flex items-center">
+        <label for="logo-upload" class="cursor-pointer flex items-center">
+          <img v-if="logoUrl" :src="logoUrl" alt="User Logo" class="h-12 w-auto rounded-lg shadow-md">
+          <span v-else class="font-bold text-xl">Add Your Logo Here</span>
+        </label>
+        <input id="logo-upload" type="file" accept="image/*" @change="onLogoUpload" class="hidden">
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="flex space-x-6">
+        <div v-for="item in navItems" :key="item.name" class="relative group">
+          <a :href="item.link" class="hover:text-gray-200 text-lg">{{ item.name }}</a>
+          <!-- Dropdown Menu -->
+          <div v-if="item.submenu" class="absolute left-0 mt-2 bg-white text-black shadow-md rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+            <a v-for="sub in item.submenu" :key="sub" href="#" class="block px-4 py-2 hover:bg-gray-200">{{ sub }}</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Save, Preview, and Publish Buttons -->
+      <div class="flex space-x-4">
+        <button @click="saveData" class="action-button bg-blue-500 hover:bg-blue-600">Save</button>
+        <button @click="previewPage" class="action-button bg-gray-500 hover:bg-gray-600">Preview</button>
+        <button @click="publishPage" class="action-button bg-green-500 hover:bg-green-600">Publish</button>
+      </div>
+    </header>
+
+    <!-- ✅ HERO SECTION (Editable) -->
+    <section class="hero bg-gray-100 text-center py-24 px-10 mt-10">
+      <textarea
+        v-model="heroText"
+        class="hero-title w-full text-4xl font-bold text-center bg-transparent border-none outline-none resize-none"
+        rows="2"
+      ></textarea>
+      
+    </section>
 
     <!-- Blocks -->
     <div
