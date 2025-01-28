@@ -1,22 +1,21 @@
 <script lang="ts">
 import { defineComponent } from 'vue-demi';
-/ Import images from the assets folder
+// Import images from the assets folder
 import image1 from './assets/image1.jpg';
 import image2 from './assets/image2.jpg';
 import image3 from './assets/image3.jpg';
-  
+
 export default defineComponent({
   data() {
-     return {
+    return {
       currentEvent: {},
       editableText: "I am editable text. Drag this box around and edit me!", // Initial text
-        selectedImage: image1, // Default image for the image block
+      selectedImage: image1, // Default image for the image block
       predefinedImages: [
         { label: "Image 1", value: image1 },
         { label: "Image 2", value: image2 },
         { label: "Image 3", value: image3 },
       ],
-    
     };
   },
   methods: {
@@ -32,7 +31,7 @@ export default defineComponent({
     onTextInput(event) {
       this.editableText = event.target.value; // Update the text as the user types
     },
-     onImageChange(event) {
+    onImageChange(event) {
       this.selectedImage = event.target.value; // Update the selected image
     },
   },
@@ -55,10 +54,8 @@ export default defineComponent({
         </div>
       </div>
     </div>
-  </div>
-</template>
 
- <!-- Draggable Image Block -->
+    <!-- Draggable Image Block -->
     <div v-draggable="{ handle: 'strong' }" class="draggable-box">
       <div style="display: flex; flex-direction: column; max-height: 200px; padding: 10px;">
         <strong class="cursor"> Drag here </strong>
@@ -85,27 +82,34 @@ export default defineComponent({
 </template>
 
 <style>
-/* Minimal required styles */
+/* General Styles */
 #demo {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   background-color: #f0f0f0;
+  gap: 20px; /* Add spacing between components */
 }
 
-.cursor {
-  cursor: grab;
-}
-
+/* Draggable Box Styles */
 .draggable-box {
   border: 2px solid #6b7280;
   border-radius: 8px;
   background-color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 350px; /* Increased width */
+  min-height: 300px; /* Increased height */
+  overflow: hidden; /* Prevent content from overflowing */
 }
 
+.cursor {
+  cursor: grab;
+  font-weight: bold;
+}
+
+/* Editable Text Box */
 .editable-textbox {
   font-size: 16px;
   padding: 8px;
@@ -119,7 +123,7 @@ export default defineComponent({
   border-color: #4a90e2;
   background-color: #fff;
 }
-  
+
 /* Image Selector */
 .image-selector {
   font-size: 16px;
@@ -137,7 +141,10 @@ export default defineComponent({
 
 /* Image Container */
 .image-container img {
-  border: 1px solid #ccc;
+  max-width: 100%; /* Ensure image fits within the width */
+  max-height: 200px; /* Limit height */
   border-radius: 4px;
+  display: block; /* Prevent inline spacing issues */
+  margin: 0 auto; /* Center the image */
 }
 </style>
