@@ -20,12 +20,12 @@ export default defineComponent({
       resizeStartX: 0,
       resizeStartY: 0,
       heroText: "Welcome to Your Landing Page!", // Editable Hero Text
-      heroCTA: "Get Started", // Editable CTA Button Text
+      //heroCTA: "Get Started", // Editable CTA Button Text
       logoUrl: '', // User uploaded logo
       navItems: [
         { name: 'Home', link: '#' },
         { name: 'About', link: '#' },
-        { name: 'Services', link: '#', submenu: ['Web Design', 'SEO', 'Marketing'] },
+        { name: 'Services', link: '#'},
         { name: 'Contact', link: '#' }
       ],
     };
@@ -122,7 +122,7 @@ export default defineComponent({
     </header>
 
     <!-- ✅ HERO SECTION (Editable) -->
-    <section class="hero bg-gray-100 text-center py-24 px-10 mt-10">
+    <section class="hero bg-gray-100 text-center py-10 px-15 mt-10">
       <textarea
         v-model="heroText"
         class="hero-title w-full text-4xl font-bold text-center bg-transparent border-none outline-none resize-none"
@@ -131,7 +131,8 @@ export default defineComponent({
       
     </section>
 
-    <!-- Blocks -->
+     <!-- ✅ GRID SYSTEM FOR BLOCKS -->
+     <div class="container mx-auto grid grid-cols-3 gap-6 p-6 transition-all">
     <div
       v-for="block in blocks"
       :key="block.id"
@@ -171,6 +172,7 @@ export default defineComponent({
       <div class="absolute bottom-1 right-1 w-5 h-5 bg-gray-500 cursor-se-resize" @mousedown="startResize($event, block)">
       </div>
     </div>
+  </div>
   </div>
 </template>
 
